@@ -45,6 +45,22 @@ try_spec do
           @resource.inventions.should == @input
         end
       end
+
+      pending 'when the list is changed after load' do
+        before :all do
+          @resource.save.should be_true
+          @resource.reload
+          @starting_list = @resource.inventions.dup
+          @tesla_coil = DataMapper::Types::Fixtures::Invention.new('tesla coil')
+          @resource.inventions.push @tesla_coil
+        end
+
+        it 'detects changes and saves them' do
+          @resource.save.should be_true
+          @resource.reload
+          @resource.inventions.should == @starting_list + [@tesla_coil]
+        end
+      end
     end
 
     describe 'with inventions information given as empty list' do
